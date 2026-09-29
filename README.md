@@ -93,3 +93,7 @@ Aplikasi difokuskan pada pengelolaan tugas secara pribadi. Aplikasi tidak mencak
 ## Kesimpulan
 
 Aplikasi Prioritas Tugas diharapkan dapat menjadi solusi sederhana bagi mahasiswa dalam mengelola tugas kuliah. Dengan adanya fitur pencatatan tugas, deadline, status, dan prioritas, mahasiswa dapat lebih mudah menentukan tugas yang harus diselesaikan terlebih dahulu dan mengurangi risiko terlambat mengumpulkan tugas.
+
+
+## Bukti Visual P4
+https://docs.google.com/document/d/1jU221n2JBUzXiuxHoGYE2fsdg-1obOOlIHwQ6Yk54ng/edit?usp=sharing

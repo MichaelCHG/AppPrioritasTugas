@@ -119,27 +119,3 @@ Widget test di `test/widget_test.dart` mencakup loading awal, data berhasil,
 empty state, error dengan retry, validasi form, dan submit loading anti-tap
 ganda. Jalankan dengan `flutter test test/widget_test.dart`.
 
-### Bukti Visual
-
-Screenshot golden dari widget dashboard dengan data berhasil dimuat:
-
-![Dashboard dengan data tugas berhasil dimuat](../test/dashboard-loaded.png)
-
-File ini dibuat dan dapat diperbarui dari widget test dengan menjalankan
-`flutter test --update-goldens test/widget_test.dart`.
-
-### Prompt AI dan Pemeriksaan Manual
-
-Prompt yang digunakan: “Buat satu feature Flutter yang menerapkan state
-management, form, dan validasi secara nyata. Feature wajib memiliki minimal enam
-kondisi UI: initial loading, data berhasil dimuat, empty state, error state
-dengan tombol retry, validasi input pada form, serta loading saat proses submit
-agar pengguna tidak dapat melakukan double tap. Pisahkan tanggung jawab widget,
-notifier/use case, dan repository. Sertakan widget test untuk setiap state utama
-dan dokumentasikan hasil dengan screenshot atau video singkat.”
-
-Bagian yang diperiksa dan diperbaiki manual: transisi loading/error/retry pada
-controller; guard submit ganda; validasi batas input dan pemanggilan repository
-hanya setelah valid; serta test yang menahan Future submit agar tombol disabled
-dapat diverifikasi. Screenshot manual masih perlu direkam pada perangkat/browser
-target dan ditambahkan ke `docs/screenshots/`.
