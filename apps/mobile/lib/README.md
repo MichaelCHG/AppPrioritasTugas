@@ -1,123 +1,104 @@
 # Struktur Kode Flutter Prioritas Tugas
 
-Dokumen ini menjelaskan lokasi kode utama aplikasi Flutter Prioritas Tugas di
-folder `apps/mobile/lib`.
+Dokumen ini menjelaskan isi `apps/mobile/lib` saat ini dan menilai kesesuaiannya
+dengan requirement prototype UI/UX, struktur proyek, routing, dan reusable
+widget.
 
-## Konsep Pengembangan
-
-### Prototype UI/UX
-
-Prototype adalah rancangan awal halaman dan alur aplikasi. Prototype dapat
-dibuat di Figma atau langsung menggunakan mock UI Flutter.
-
-Halaman utama yang direncanakan untuk aplikasi ini:
-
-- Login dan registrasi pengguna
-- Dashboard atau daftar prioritas tugas
-- Form tambah dan edit tugas
-- Detail tugas
-- Profile atau pengaturan pengguna
-
-Saat ini halaman login berada di `auth/auth_page.dart`, sedangkan halaman utama
-aplikasi dibuat dari alur yang dipanggil melalui `main.dart`.
-
-### Struktur Proyek
-
-```text
-apps/mobile/lib/
-├── main.dart                    # Bootstrap aplikasi dan AuthGate
-├── firebase_options.dart        # Konfigurasi Firebase per platform
-├── auth/
-│   ├── auth_page.dart           # UI login dan registrasi
-│   └── username_auth_service.dart # Service autentikasi Firebase
-├── data/
-│   └── tugas_repository.dart    # Kontrak dan implementasi akses data tugas
-└── models/
-    └── tugas.dart               # Model domain tugas
-```
-
-Struktur ini memisahkan tampilan autentikasi, service, akses data, dan model
-sehingga setiap bagian lebih mudah dirawat dan diuji.
-
-## Routing
-
-Routing mengatur perpindahan antarhalaman. Saat ini alur navigasi awal dikontrol
-oleh `AuthGate` di `main.dart` berdasarkan status login Firebase:
-
-```text
-main.dart
-└── AuthGate
-    ├── belum login  -> auth/auth_page.dart
-    └── sudah login  -> halaman utama daftar tugas
-```
-
-Jika jumlah halaman bertambah, routing dapat dipisahkan menjadi:
-
-```text
-lib/routes/app_routes.dart
-```
-
-File tersebut dapat berisi nama route dan konfigurasi `MaterialApp.routes` atau
-`onGenerateRoute`.
-
-## Reusable Component atau Widget
-
-Widget yang digunakan berulang sebaiknya dipindahkan ke folder khusus agar UI
-konsisten dan tidak menyalin kode yang sama:
-
-```text
-lib/widgets/
-├── primary_button.dart          # Tombol aksi utama
-├── app_text_field.dart          # Input field dengan gaya aplikasi
-├── task_card.dart               # Ringkasan satu tugas
-└── app_app_bar.dart             # App bar bersama
-```
-
-Folder `widgets` dapat ditambahkan ketika komponen reusable mulai digunakan di
-lebih dari satu halaman.
-
-## Pengembangan Struktur Berikutnya
-
-Jika halaman aplikasi bertambah, struktur yang disarankan adalah:
+## Struktur Folder
 
 ```text
 lib/
 ├── main.dart
 ├── app.dart
+├── firebase_options.dart
 ├── routes/
 │   └── app_routes.dart
 ├── screens/
 │   ├── login_screen.dart
-│   ├── dashboard_screen.dart
-│   ├── task_detail_screen.dart
-│   └── profile_screen.dart
+│   └── dashboard_screen.dart
 ├── widgets/
+│   └── task_form_dialog.dart
 ├── models/
-├── services/
-└── data/
+│   └── tugas.dart
+├── data/
+│   └── tugas_repository.dart
+└── services/
+    └── auth_service.dart
 ```
 
-Pembagian tanggung jawabnya:
+## Fungsi Setiap Bagian
 
-- `screens/`: halaman penuh yang dirender oleh route.
-- `widgets/`: komponen UI reusable.
-- `models/`: struktur data domain seperti `Tugas`.
-- `services/`: integrasi eksternal seperti Firebase Authentication.
-- `data/`: repository dan sumber penyimpanan data.
-- `routes/`: definisi navigasi antarhalaman.
+- `main.dart`: entry point. Menginisialisasi Flutter dan Firebase, lalu
+  menjalankan `PrioritasTugasApp`.
+- `app.dart`: mengonfigurasi `MaterialApp`, tema aplikasi, dan route awal.
+- `firebase_options.dart`: konfigurasi Firebase untuk platform yang didukung.
+- `routes/app_routes.dart`: mendefinisikan route `/` dan `AuthGate`. Gerbang ini
+  menampilkan halaman login saat belum masuk, menunggu status autentikasi, atau
+  menampilkan dashboard setelah status pengguna tersedia.
+- `screens/login_screen.dart`: UI masuk dan registrasi menggunakan username dan
+  password. Widget utamanya bernama `AuthPage`.
+- `screens/dashboard_screen.dart`: halaman daftar tugas, ringkasan jumlah
+  tugas, filter status, pengurutan prioritas/deadline, dan aksi tambah, edit,
+  ubah status, hapus, serta keluar. Widget utamanya bernama `BerandaPage`.
+- `widgets/task_form_dialog.dart`: dialog reusable untuk menambah dan mengedit
+  tugas, termasuk pemilihan deadline dan prioritas.
+- `models/tugas.dart`: model tugas dan konversi data ke/dari format map untuk
+  penyimpanan.
+- `data/tugas_repository.dart`: kontrak repository tugas serta implementasi
+  Firestore dan memory repository untuk pengujian.
+- `services/auth_service.dart`: operasi Firebase Authentication untuk
+  registrasi, login, logout, dan perubahan status autentikasi.
 
-## Perintah Menjalankan Aplikasi
+## Kesesuaian Dengan Requirement
 
-Jalankan perintah berikut dari folder `apps/mobile`:
+### Prototype UI/UX
 
-```bash
+**Sebagian terpenuhi.** UI Flutter yang sudah tersedia berfungsi sebagai
+implementasi awal untuk halaman login/registrasi dan dashboard. Form tambah dan
+edit tugas tampil sebagai dialog. Belum ada halaman Detail tugas atau Profile,
+dan folder `lib` tidak menunjukkan adanya prototype Figma terpisah.
+
+### Struktur Proyek
+
+**Terpenuhi untuk fitur yang sudah diimplementasikan.** Entry point, konfigurasi
+app, routes, screens, widgets, models, data repository, dan services sudah
+dipisahkan. Belum ada model User tersendiri karena alur autentikasi saat ini
+menggunakan Firebase Auth secara langsung.
+
+### Routing
+
+**Sebagian terpenuhi.** `MaterialApp` memakai route bernama `/`, dan `AuthGate`
+mengarahkan pengguna berdasarkan status autentikasi Firebase. Navigasi ke
+halaman Detail dan Profile belum tersedia karena kedua halaman tersebut belum
+diimplementasikan.
+
+### Reusable Component atau Widget
+
+**Sebagian terpenuhi.** `FormTugasDialog` digunakan untuk alur tambah dan edit
+tugas. Header, kartu ringkasan, kartu tugas, input, dan tombol lain masih
+didefinisikan langsung di screen masing-masing; belum ada komponen umum seperti
+`PrimaryButton` atau `AppTextField`.
+
+## Catatan Penamaan
+
+Nama file screen mengikuti perannya (`login_screen.dart` dan
+`dashboard_screen.dart`), sedangkan nama class yang ada tetap `AuthPage` dan
+`BerandaPage`. Nama service autentikasi adalah `UsernameAuthService`, meskipun
+file-nya bernama `auth_service.dart`. Ini tidak menghalangi aplikasi berjalan,
+tetapi dapat diseragamkan pada refactor berikutnya.
+
+## Menjalankan dan Memeriksa Aplikasi
+
+Jalankan dari folder `apps/mobile`:
+
+```powershell
 flutter pub get
-flutter run
+flutter run -d chrome
 ```
 
-Untuk menjalankan pemeriksaan kode dan test:
+Pemeriksaan statis dan widget test:
 
-```bash
+```powershell
 flutter analyze
 flutter test
 ```

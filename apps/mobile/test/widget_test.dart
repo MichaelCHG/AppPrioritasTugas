@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:prioritas_tugas/data/tugas_repository.dart';
-import 'package:prioritas_tugas/main.dart';
+import 'package:prioritas_tugas/screens/dashboard_screen.dart';
 import 'package:prioritas_tugas/models/tugas.dart';
 
 void main() {
