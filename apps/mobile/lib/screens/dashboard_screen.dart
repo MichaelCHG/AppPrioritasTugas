@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/tugas_repository.dart';
 import '../models/tugas.dart';
 import '../services/auth_service.dart';
+import '../state/tugas_controller.dart';
 import '../widgets/task_form_dialog.dart';
 
 class BerandaPage extends StatefulWidget {
@@ -16,35 +17,23 @@ class BerandaPage extends StatefulWidget {
 }
 
 class _BerandaPageState extends State<BerandaPage> {
-  final List<Tugas> tugas = [];
+  late final TugasController _controller;
   String filter = 'Semua';
-  bool sedangMemuat = true;
-  String? pesanError;
+
+  List<Tugas> get tugas => _controller.tugas;
+  bool get sedangMemuat => _controller.isLoading;
+  String? get pesanError => _controller.error;
 
   @override
   void initState() {
     super.initState();
-    _muatTugas();
+    _controller = TugasController(widget.repository)..load();
   }
 
-  Future<void> _muatTugas() async {
-    try {
-      final hasil = await widget.repository.getAll();
-      if (!mounted) return;
-      setState(() {
-        tugas
-          ..clear()
-          ..addAll(hasil);
-        sedangMemuat = false;
-      });
-    } catch (error) {
-      debugPrint('Gagal memuat tugas dari Firebase: $error');
-      if (!mounted) return;
-      setState(() {
-        sedangMemuat = false;
-        pesanError = 'Data belum dapat dimuat dari Firebase.';
-      });
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   List<Tugas> get tugasTampil {
@@ -74,63 +63,75 @@ class _BerandaPageState extends State<BerandaPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: _buildHeader()),
-                SliverToBoxAdapter(child: _buildRingkasan()),
-                SliverToBoxAdapter(child: _buildFilter()),
-                if (sedangMemuat)
-                  const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (pesanError != null)
-                  SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(pesanError!),
-                          const SizedBox(height: 12),
-                          FilledButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                sedangMemuat = true;
-                                pesanError = null;
-                              });
-                              _muatTugas();
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Coba lagi'),
-                          ),
-                        ],
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) => Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(child: _buildHeader()),
+                  SliverToBoxAdapter(child: _buildRingkasan()),
+                  SliverToBoxAdapter(child: _buildFilter()),
+                  if (sedangMemuat)
+                    const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (pesanError != null)
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(pesanError!),
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              onPressed: _controller.load,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Coba lagi'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (_controller.isEmpty)
+                    const SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.inbox_outlined, size: 48),
+                            SizedBox(height: 12),
+                            Text('Belum ada tugas'),
+                            SizedBox(height: 4),
+                            Text('Tambahkan tugas pertamamu untuk memulai.'),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                      sliver: SliverList.builder(
+                        itemCount: tugasTampil.length,
+                        itemBuilder: (context, index) =>
+                            _buildTugasCard(tugasTampil[index]),
                       ),
                     ),
-                  )
-                else
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
-                    sliver: SliverList.builder(
-                      itemCount: tugasTampil.length,
-                      itemBuilder: (context, index) =>
-                          _buildTugasCard(tugasTampil[index]),
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _tambahTugas,
-        backgroundColor: const Color(0xff14213d),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah tugas'),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _tambahTugas,
+          backgroundColor: const Color(0xff14213d),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add),
+          label: const Text('Tambah tugas'),
+        ),
       ),
     );
   }
@@ -401,59 +402,27 @@ class _BerandaPageState extends State<BerandaPage> {
   }
 
   Future<void> _tambahTugas() async {
-    final hasil = await showDialog<Tugas>(
+    await showDialog<void>(
       context: context,
-      builder: (_) => const FormTugasDialog(),
+      builder: (_) => FormTugasDialog(controller: _controller),
     );
-    if (hasil == null) return;
-    try {
-      final tersimpan = await widget.repository.add(hasil);
-      if (mounted) setState(() => tugas.add(tersimpan));
-    } catch (_) {
-      if (mounted) _tampilkanError();
-    }
   }
 
   Future<void> _editTugas(Tugas item) async {
-    final hasil = await showDialog<Tugas>(
+    await showDialog<void>(
       context: context,
-      builder: (_) => FormTugasDialog(tugas: item),
+      builder: (_) => FormTugasDialog(tugas: item, controller: _controller),
     );
-    if (hasil == null) return;
-    item.nama = hasil.nama;
-    item.mataKuliah = hasil.mataKuliah;
-    item.deadline = hasil.deadline;
-    item.prioritas = hasil.prioritas;
-    try {
-      await widget.repository.update(item);
-      if (mounted) setState(() {});
-    } catch (_) {
-      if (mounted) _tampilkanError();
-    }
   }
 
   Future<void> _ubahStatus(Tugas item) async {
-    final statusLama = item.status;
-    setState(
-      () => item.status = item.status == StatusTugas.selesai
-          ? StatusTugas.belum
-          : StatusTugas.selesai,
-    );
-    try {
-      await widget.repository.update(item);
-    } catch (_) {
-      if (mounted) {
-        setState(() => item.status = statusLama);
-        _tampilkanError();
-      }
-    }
+    final tersimpan = await _controller.toggleStatus(item);
+    if (!tersimpan && mounted) _tampilkanError();
   }
 
   Future<void> _hapusTugas(Tugas item) async {
-    try {
-      await widget.repository.delete(item);
-      if (mounted) setState(() => tugas.remove(item));
-    } catch (_) {
+    final terhapus = await _controller.delete(item);
+    if (!terhapus) {
       if (mounted) _tampilkanError();
       return;
     }

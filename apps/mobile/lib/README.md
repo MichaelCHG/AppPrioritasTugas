@@ -18,6 +18,8 @@ lib/
 │   └── dashboard_screen.dart
 ├── widgets/
 │   └── task_form_dialog.dart
+├── state/
+│   └── tugas_controller.dart
 ├── models/
 │   └── tugas.dart
 ├── data/
@@ -41,7 +43,9 @@ lib/
   tugas, filter status, pengurutan prioritas/deadline, dan aksi tambah, edit,
   ubah status, hapus, serta keluar. Widget utamanya bernama `BerandaPage`.
 - `widgets/task_form_dialog.dart`: dialog reusable untuk menambah dan mengedit
-  tugas, termasuk pemilihan deadline dan prioritas.
+  tugas, termasuk validasi, status submit, pemilihan deadline, dan prioritas.
+- `state/tugas_controller.dart`: mengelola loading, data, error/retry,
+  penyimpanan, perubahan status, dan penghapusan melalui `TugasRepository`.
 - `models/tugas.dart`: model tugas dan konversi data ke/dari format map untuk
   penyimpanan.
 - `data/tugas_repository.dart`: kontrak repository tugas serta implementasi
@@ -102,3 +106,40 @@ Pemeriksaan statis dan widget test:
 flutter analyze
 flutter test
 ```
+
+## Feature State, Form, dan Validasi
+
+Dashboard tugas menggunakan `TugasController` sebagai state management berbasis
+`ChangeNotifier`. Widget hanya merender state dan mengirim aksi; controller
+mengatur siklus repository; repository tetap menjadi batas data Firebase.
+Form memvalidasi nama tugas (wajib, 3-80 karakter) dan batas panjang mata
+kuliah. Saat submit berjalan, tombol dinonaktifkan dan indikator tampil.
+
+Widget test di `test/widget_test.dart` mencakup loading awal, data berhasil,
+empty state, error dengan retry, validasi form, dan submit loading anti-tap
+ganda. Jalankan dengan `flutter test test/widget_test.dart`.
+
+### Bukti Visual
+
+Screenshot golden dari widget dashboard dengan data berhasil dimuat:
+
+![Dashboard dengan data tugas berhasil dimuat](../test/dashboard-loaded.png)
+
+File ini dibuat dan dapat diperbarui dari widget test dengan menjalankan
+`flutter test --update-goldens test/widget_test.dart`.
+
+### Prompt AI dan Pemeriksaan Manual
+
+Prompt yang digunakan: “Buat satu feature Flutter yang menerapkan state
+management, form, dan validasi secara nyata. Feature wajib memiliki minimal enam
+kondisi UI: initial loading, data berhasil dimuat, empty state, error state
+dengan tombol retry, validasi input pada form, serta loading saat proses submit
+agar pengguna tidak dapat melakukan double tap. Pisahkan tanggung jawab widget,
+notifier/use case, dan repository. Sertakan widget test untuk setiap state utama
+dan dokumentasikan hasil dengan screenshot atau video singkat.”
+
+Bagian yang diperiksa dan diperbaiki manual: transisi loading/error/retry pada
+controller; guard submit ganda; validasi batas input dan pemanggilan repository
+hanya setelah valid; serta test yang menahan Future submit agar tombol disabled
+dapat diverifikasi. Screenshot manual masih perlu direkam pada perangkat/browser
+target dan ditambahkan ke `docs/screenshots/`.
