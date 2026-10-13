@@ -30,7 +30,12 @@ class AuthGate extends StatelessWidget {
         }
         if (snapshot.hasData) {
           return BerandaPage(
-            repository: FirestoreTugasRepository(),
+            repository: CachedTugasRepository(
+              remote: FirestoreTugasRepository(),
+              cache: SharedPreferencesTugasRepository(
+                userId: snapshot.data!.uid,
+              ),
+            ),
             authService: authService,
           );
         }

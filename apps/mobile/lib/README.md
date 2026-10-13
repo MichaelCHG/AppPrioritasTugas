@@ -119,3 +119,32 @@ Widget test di `test/widget_test.dart` mencakup loading awal, data berhasil,
 empty state, error dengan retry, validasi form, dan submit loading anti-tap
 ganda. Jalankan dengan `flutter test test/widget_test.dart`.
 
+## Local Data & Persistence
+
+Data tugas tetap menggunakan Firebase Authentication dan Cloud Firestore sebagai
+backend utama. Setelah data berhasil dibaca atau perubahan CRUD berhasil di
+Firestore, salinan tugas disimpan di SharedPreferences pada perangkat, dengan
+key terpisah berdasarkan UID pengguna. Jika pembacaan Firestore gagal, dashboard
+mencoba menampilkan cache lokal. Operasi tulis tetap memerlukan keberhasilan
+Firestore agar cache dan backend tidak berbeda.
+
+Posisi kode untuk reviewer:
+
+- `lib/models/tugas.dart`: entity `Tugas` dan pembacaan deadline dari Firestore
+  maupun ISO-8601 lokal.
+- `lib/data/tugas_repository.dart`: `FirestoreTugasRepository` sebagai backend,
+  `SharedPreferencesTugasRepository` untuk cache lokal/serialisasi JSON, dan
+  `CachedTugasRepository` untuk sinkronisasi serta fallback.
+- `lib/routes/app_routes.dart`: menyusun repository Firestore dan cache per UID
+  yang dipakai dashboard.
+- `lib/state/tugas_controller.dart` dan `lib/screens/dashboard_screen.dart`:
+  alur FE untuk baca, tambah, edit, ubah status, dan hapus tetap menggunakan
+  kontrak repository yang sama.
+- `test/tugas_repository_test.dart`: tes CRUD lokal, pembuatan ulang repository,
+  dan fallback cache setelah pembacaan Firestore gagal.
+
+Demo singkat: jalankan `flutter run` dan masuk dengan akun Firebase, lalu tambah
+tugas, edit nama/prioritas, ubah status, dan hapus tugas. Tutup lalu buka kembali
+aplikasi untuk memverifikasi data yang terakhir berhasil disinkronkan tetap
+tersedia; saat Firestore tidak dapat dibaca, data tersebut dilayani dari cache.
+

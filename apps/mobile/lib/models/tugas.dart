@@ -18,11 +18,17 @@ class Tugas {
   StatusTugas status;
 
   factory Tugas.fromMap(String id, Map<String, dynamic> map) {
+    final rawDeadline = map['deadline'];
+    final deadline = switch (rawDeadline) {
+      DateTime value => value,
+      String value => DateTime.parse(value),
+      _ => rawDeadline.toDate() as DateTime,
+    };
     return Tugas(
       id: id,
       nama: map['nama'] as String? ?? '',
       mataKuliah: map['mataKuliah'] as String? ?? 'Tanpa mata kuliah',
-      deadline: (map['deadline'] as dynamic).toDate(),
+      deadline: deadline,
       prioritas: (map['prioritas'] as num?)?.toInt() ?? 2,
       status: StatusTugas.values.firstWhere(
         (item) => item.name == map['status'],
