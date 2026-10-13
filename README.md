@@ -97,3 +97,6 @@ Aplikasi Prioritas Tugas diharapkan dapat menjadi solusi sederhana bagi mahasisw
 
 ## Bukti Visual P4
 https://docs.google.com/document/d/1jU221n2JBUzXiuxHoGYE2fsdg-1obOOlIHwQ6Yk54ng/edit?usp=sharing
+
+## Pengerjaan P5
+https://docs.google.com/document/d/1iguGg44L-jRPGOZF1VckO8a3YigKOeDQr58c05ZCc3s/edit?tab=t.0
