@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum StatusTugas { belum, dikerjakan, selesai }
 
 class Tugas {
@@ -18,22 +20,44 @@ class Tugas {
   StatusTugas status;
 
   factory Tugas.fromMap(String id, Map<String, dynamic> map) {
+    final nama = map['nama'];
+    if (nama is! String || nama.trim().isEmpty) {
+      throw const FormatException('Nama tugas tidak valid.');
+    }
+
+    final rawMataKuliah = map['mataKuliah'];
+    if (rawMataKuliah != null && rawMataKuliah is! String) {
+      throw const FormatException('Mata kuliah tidak valid.');
+    }
+
     final rawDeadline = map['deadline'];
     final deadline = switch (rawDeadline) {
       DateTime value => value,
       String value => DateTime.parse(value),
-      _ => rawDeadline.toDate() as DateTime,
+      Timestamp value => value.toDate(),
+      _ => throw const FormatException('Deadline tugas tidak valid.'),
     };
+    final rawPrioritas = map['prioritas'];
+    if (rawPrioritas is! int || rawPrioritas < 1 || rawPrioritas > 3) {
+      throw const FormatException('Prioritas tugas tidak valid.');
+    }
+    final rawStatus = map['status'];
+    final matchingStatuses = StatusTugas.values
+        .where((item) => item.name == rawStatus);
+    if (rawStatus != null && matchingStatuses.isEmpty) {
+      throw const FormatException('Status tugas tidak valid.');
+    }
+    final status = rawStatus == null
+        ? StatusTugas.belum
+        : matchingStatuses.first;
+
     return Tugas(
       id: id,
-      nama: map['nama'] as String? ?? '',
-      mataKuliah: map['mataKuliah'] as String? ?? 'Tanpa mata kuliah',
+      nama: nama,
+      mataKuliah: rawMataKuliah as String? ?? 'Tanpa mata kuliah',
       deadline: deadline,
-      prioritas: (map['prioritas'] as num?)?.toInt() ?? 2,
-      status: StatusTugas.values.firstWhere(
-        (item) => item.name == map['status'],
-        orElse: () => StatusTugas.belum,
-      ),
+      prioritas: rawPrioritas,
+      status: status,
     );
   }
 

@@ -199,10 +199,17 @@ UI memperbarui daftar lokal setelah operasi berhasil.
 
 ## Testing dan Quality Gate
 
-Test yang tersedia berada di `apps/mobile/test/widget_test.dart`. Test tersebut
-menggunakan `MemoryTugasRepository` untuk memverifikasi bahwa beranda dapat
-menampilkan judul aplikasi, tugas, dan tombol tambah tugas tanpa bergantung
-pada jaringan atau Firebase.
+Test UI berada di `apps/mobile/test/widget_test.dart` dan mencakup loading,
+success, empty state, error/retry, validasi form, dan status submit. Test
+repository/model di `apps/mobile/test/tugas_repository_test.dart` mencakup data
+model valid dan invalid, pemuatan backend sukses dan kosong, penyimpanan serta
+sinkronisasi CRUD ke backend/cache, kegagalan layanan Firebase, dan JSON cache
+yang rusak. Backend dipalsukan dalam unit test agar tes tidak memerlukan
+koneksi Firebase.
+
+Firestore diakses melalui Firebase SDK, sehingga kasus kegagalan layanan dalam
+unit test adalah `FirebaseException` (`unavailable`), bukan respons HTTP.
+Proyek belum memiliki REST API khusus yang dipakai aplikasi mobile.
 
 Pemeriksaan lokal yang relevan:
 
@@ -215,7 +222,8 @@ flutter test
 ## Status Komponen yang Belum Aktif
 
 - `apps/api/prisma` belum menjadi jalur backend aplikasi mobile. Belum ada
-  service API yang dipanggil oleh client pada implementasi saat ini.
+  service REST API yang dipanggil oleh client pada implementasi saat ini;
+  aplikasi memakai Firebase Authentication dan Cloud Firestore secara langsung.
 - `packages/shared/src` disiapkan untuk kode bersama, tetapi belum berisi
   model, validator, atau utility yang digunakan aplikasi.
 - Sinkronisasi dengan layanan akademik, Google Calendar, chat, AI, dan fitur

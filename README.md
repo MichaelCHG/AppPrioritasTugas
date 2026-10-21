@@ -100,3 +100,6 @@ https://docs.google.com/document/d/1jU221n2JBUzXiuxHoGYE2fsdg-1obOOlIHwQ6Yk54ng/
 
 ## Pengerjaan P5
 https://docs.google.com/document/d/1iguGg44L-jRPGOZF1VckO8a3YigKOeDQr58c05ZCc3s/edit?tab=t.0
+
+## Pengerjaan P6
+https://docs.google.com/document/d/13c2LEjvcovEeVipLdn08Z3k1YRBfzyxg7wsu8pangmQ/edit?usp=sharing
