@@ -65,10 +65,17 @@ class TugasController extends ChangeNotifier {
   }
 
   Future<bool> toggleStatus(Tugas tugas) async {
+    return setStatus(
+      tugas,
+      tugas.status == StatusTugas.selesai
+          ? StatusTugas.belum
+          : StatusTugas.selesai,
+    );
+  }
+
+  Future<bool> setStatus(Tugas tugas, StatusTugas status) async {
     final statusLama = tugas.status;
-    tugas.status = statusLama == StatusTugas.selesai
-        ? StatusTugas.belum
-        : StatusTugas.selesai;
+    tugas.status = status;
     notifyListeners();
     try {
       await _repository.update(tugas);

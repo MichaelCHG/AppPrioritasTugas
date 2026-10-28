@@ -19,6 +19,9 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
   final _formKey = GlobalKey<FormState>();
   late DateTime deadline;
   late int prioritas;
+  late int kesulitan;
+  late final TextEditingController catatanController;
+  String? deadlineError;
 
   @override
   void initState() {
@@ -27,15 +30,18 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
     mataKuliahController = TextEditingController(
       text: widget.tugas?.mataKuliah,
     );
+    catatanController = TextEditingController(text: widget.tugas?.catatan);
     deadline =
         widget.tugas?.deadline ?? DateTime.now().add(const Duration(days: 1));
     prioritas = widget.tugas?.prioritas ?? 2;
+    kesulitan = widget.tugas?.kesulitan ?? 2;
   }
 
   @override
   void dispose() {
     namaController.dispose();
     mataKuliahController.dispose();
+    catatanController.dispose();
     super.dispose();
   }
 
@@ -115,6 +121,39 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
                 ],
                 onChanged: (value) => setState(() => prioritas = value ?? 2),
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int>(
+                initialValue: kesulitan,
+                decoration: const InputDecoration(labelText: 'Kesulitan'),
+                items: const [
+                  DropdownMenuItem(value: 1, child: Text('Mudah')),
+                  DropdownMenuItem(value: 2, child: Text('Sedang')),
+                  DropdownMenuItem(value: 3, child: Text('Sulit')),
+                ],
+                onChanged: (value) => setState(() => kesulitan = value ?? 2),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: catatanController,
+                maxLength: 300,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Catatan (opsional)',
+                  alignLabelWithHint: true,
+                ),
+              ),
+              if (deadlineError != null) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    deadlineError!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ],
               if (widget.controller.submitError case final error?) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -147,22 +186,27 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
   }
 
   Future<void> _pilihTanggal() async {
+    final today = DateUtils.dateOnly(DateTime.now());
+    final initialDate = DateUtils.dateOnly(deadline).isBefore(today)
+        ? today
+        : DateUtils.dateOnly(deadline);
     final hasil = await showDatePicker(
       context: context,
-      firstDate: DateTime.now(),
+      firstDate: today,
       lastDate: DateTime(2100),
-      initialDate: deadline,
+      initialDate: initialDate,
     );
     if (hasil != null) {
-      setState(
-        () => deadline = DateTime(
+      setState(() {
+        deadline = DateTime(
           hasil.year,
           hasil.month,
           hasil.day,
           deadline.hour,
           deadline.minute,
-        ),
-      );
+        );
+        deadlineError = null;
+      });
     }
   }
 
@@ -172,20 +216,25 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
       initialTime: TimeOfDay.fromDateTime(deadline),
     );
     if (hasil != null) {
-      setState(
-        () => deadline = DateTime(
+      setState(() {
+        deadline = DateTime(
           deadline.year,
           deadline.month,
           deadline.day,
           hasil.hour,
           hasil.minute,
-        ),
-      );
+        );
+        deadlineError = null;
+      });
     }
   }
 
   Future<void> _simpan() async {
     if (!_formKey.currentState!.validate()) return;
+    if (widget.tugas == null && !deadline.isAfter(DateTime.now())) {
+      setState(() => deadlineError = 'Deadline harus berada di masa depan.');
+      return;
+    }
     final berhasil = await widget.controller.save(
       Tugas(
         nama: namaController.text.trim(),
@@ -195,6 +244,8 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
         deadline: deadline,
         prioritas: prioritas,
         status: widget.tugas?.status ?? StatusTugas.belum,
+        kesulitan: kesulitan,
+        catatan: catatanController.text.trim(),
       ),
       existing: widget.tugas,
     );

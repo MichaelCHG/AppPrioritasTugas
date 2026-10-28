@@ -12,6 +12,7 @@ abstract interface class TugasRepository {
   Future<Tugas> add(Tugas tugas);
   Future<void> update(Tugas tugas);
   Future<void> delete(Tugas tugas);
+  Future<void> deleteAll();
 }
 
 class FirestoreTugasRepository implements TugasRepository {
@@ -57,6 +58,20 @@ class FirestoreTugasRepository implements TugasRepository {
     final id = tugas.id;
     if (id == null) return;
     await (await _collection()).doc(id).delete();
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    final collection = await _collection();
+    while (true) {
+      final snapshot = await collection.limit(400).get();
+      if (snapshot.docs.isEmpty) return;
+      final batch = _firestore.batch();
+      for (final document in snapshot.docs) {
+        batch.delete(document.reference);
+      }
+      await batch.commit();
+    }
   }
 }
 
@@ -112,6 +127,16 @@ class SharedPreferencesTugasRepository implements TugasRepository {
     await _writeAll(items);
   }
 
+  @override
+  Future<void> deleteAll() async {
+    final prefs = await _prefs;
+    if (!prefs.containsKey(_storageKey)) return;
+    final removed = await prefs.remove(_storageKey);
+    if (!removed) {
+      throw StateError('Cache lokal tugas tidak dapat dihapus.');
+    }
+  }
+
   Future<void> _writeAll(List<Tugas> tugas) async {
     final records = tugas.map((item) {
       return {
@@ -165,6 +190,12 @@ class CachedTugasRepository implements TugasRepository {
     await _updateCache(() => cache.delete(tugas));
   }
 
+  @override
+  Future<void> deleteAll() async {
+    await remote.deleteAll();
+    await cache.deleteAll();
+  }
+
   Future<void> _updateCache(Future<void> Function() update) async {
     try {
       await update();
@@ -195,4 +226,7 @@ class MemoryTugasRepository implements TugasRepository {
 
   @override
   Future<void> delete(Tugas tugas) async => _items.remove(tugas);
+
+  @override
+  Future<void> deleteAll() async => _items.clear();
 }

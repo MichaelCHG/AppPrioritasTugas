@@ -65,6 +65,50 @@ void main() {
     );
   });
 
+  testWidgets('menampilkan pengingat tugas yang jatuh tempo dalam satu jam', (
+    WidgetTester tester,
+  ) async {
+    final task = _sampleTask()
+      ..deadline = DateTime.now().add(const Duration(minutes: 30));
+    await _render(tester, _TestTugasRepository(initial: [task]));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('deadline-popup')), findsOneWidget);
+    expect(find.textContaining('Membuat rancangan aplikasi'), findsWidgets);
+    await tester.pump(const Duration(seconds: 7));
+    expect(find.byKey(const Key('deadline-popup')), findsNothing);
+  });
+
+  testWidgets('dashboard menandai jumlah tugas yang belum selesai', (
+    WidgetTester tester,
+  ) async {
+    await _render(tester, _TestTugasRepository(initial: [_sampleTask()]));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Belum selesai'), findsOneWidget);
+    expect(find.byKey(const Key('unfinished-task-count')), findsOneWidget);
+  });
+
+  testWidgets('navigasi membuka dan mengontrol sesi fokus', (
+    WidgetTester tester,
+  ) async {
+    await _render(tester, _TestTugasRepository());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Fokus'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sesi fokus'), findsOneWidget);
+    expect(find.text('25:00'), findsOneWidget);
+    await tester.tap(find.text('Mulai fokus'));
+    await tester.pump();
+    expect(find.text('Jeda'), findsOneWidget);
+    await tester.tap(find.text('Jeda'));
+    await tester.pump();
+    await tester.tap(find.text('Ulangi'));
+    await tester.pump();
+    expect(find.text('25:00'), findsOneWidget);
+  });
+
   testWidgets('menampilkan empty state saat belum ada tugas', (
     WidgetTester tester,
   ) async {
@@ -139,6 +183,123 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing);
   });
+
+  testWidgets('form menyimpan catatan bersama tugas', (
+    WidgetTester tester,
+  ) async {
+    final repository = _TestTugasRepository();
+    await _render(tester, repository);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tambah tugas'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Laporan akhir');
+    await tester.enterText(
+      find.byType(TextFormField).at(2),
+      'Sertakan referensi jurnal',
+    );
+    await tester.tap(find.text('Simpan'));
+    await tester.pumpAndSettle();
+
+    expect(repository.items.single.catatan, 'Sertakan referensi jurnal');
+    expect(repository.items.single.kesulitan, 2);
+  });
+
+  testWidgets('membatalkan penyelesaian menjaga tugas di daftar aktif', (
+    WidgetTester tester,
+  ) async {
+    await _render(tester, _TestTugasRepository(initial: [_sampleTask()]));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Checkbox).first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Selesaikan tugas?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Membuat rancangan aplikasi'), findsOneWidget);
+    expect(find.byKey(const Key('unfinished-task-count')), findsOneWidget);
+  });
+
+  testWidgets('konfirmasi selesai memindahkan tugas ke riwayat', (
+    WidgetTester tester,
+  ) async {
+    final repository = _TestTugasRepository(initial: [_sampleTask()]);
+    await _render(tester, repository);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Checkbox).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Selesaikan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Membuat rancangan aplikasi'), findsNothing);
+    expect(find.byKey(const Key('unfinished-task-count')), findsNothing);
+    expect(repository.items.single.status, StatusTugas.selesai);
+
+    await tester.tap(find.text('Riwayat'));
+    await tester.pumpAndSettle();
+    expect(find.text('Riwayat tugas selesai'), findsOneWidget);
+    expect(find.text('Membuat rancangan aplikasi'), findsOneWidget);
+  });
+
+  testWidgets('membatalkan dialog hapus akun tidak menghapus data', (
+    WidgetTester tester,
+  ) async {
+    final repository = _TestTugasRepository(initial: [_sampleTask()]);
+    var deletionRequested = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BerandaPage(
+          repository: repository,
+          onDeleteAccount: (_) async => deletionRequested = true,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Menu akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hapus akun'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hapus akun secara permanen?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+
+    expect(deletionRequested, isFalse);
+    expect(repository.items, hasLength(1));
+  });
+
+  testWidgets('konfirmasi hapus akun memanggil penghapusan data akun', (
+    WidgetTester tester,
+  ) async {
+    final repository = _TestTugasRepository(initial: [_sampleTask()]);
+    String? receivedPassword;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BerandaPage(
+          repository: repository,
+          onDeleteAccount: (password) async {
+            receivedPassword = password;
+            await repository.deleteAll();
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Menu akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hapus akun'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('delete-account-password')),
+      'password-ku',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Hapus akun'));
+    await tester.pumpAndSettle();
+
+    expect(receivedPassword, 'password-ku');
+    expect(repository.items, isEmpty);
+  });
 }
 
 Future<void> _render(WidgetTester tester, TugasRepository repository) async {
@@ -192,6 +353,9 @@ class _TestTugasRepository implements TugasRepository {
 
   @override
   Future<void> delete(Tugas tugas) async => items.remove(tugas);
+
+  @override
+  Future<void> deleteAll() async => items.clear();
 
   @override
   Future<void> update(Tugas tugas) async {}

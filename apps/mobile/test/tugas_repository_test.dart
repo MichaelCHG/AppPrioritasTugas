@@ -26,6 +26,29 @@ void main() {
     expect(tugas.status, StatusTugas.dikerjakan);
   });
 
+  test('model mempertahankan detail dan mendukung data lama', () {
+    final oldTask = Tugas.fromMap('old-task', {
+      'nama': 'Tugas lama',
+      'mataKuliah': 'Pemrograman Mobile',
+      'deadline': DateTime(2026, 10, 20, 9),
+      'prioritas': 3,
+    });
+    final detailedTask = Tugas(
+      nama: 'Tugas lengkap',
+      mataKuliah: 'Basis Data',
+      deadline: DateTime(2026, 10, 21, 10),
+      prioritas: 2,
+      kesulitan: 3,
+      catatan: 'Baca bab normalisasi',
+    );
+    final restored = Tugas.fromMap('new-task', detailedTask.toMap());
+
+    expect(oldTask.kesulitan, 2);
+    expect(oldTask.catatan, isEmpty);
+    expect(restored.kesulitan, 3);
+    expect(restored.catatan, 'Baca bab normalisasi');
+  });
+
   test('model menolak data tugas tidak valid', () {
     expect(
       () => Tugas.fromMap('task-1', {
@@ -140,6 +163,37 @@ void main() {
       isEmpty,
     );
   });
+
+  test('cache menyimpan detail tugas baru', () async {
+    final repository = SharedPreferencesTugasRepository(userId: 'user-1');
+    final task = Tugas(
+      nama: 'Tugas lengkap',
+      mataKuliah: 'Basis Data',
+      deadline: DateTime(2026, 10, 21, 10),
+      prioritas: 2,
+      kesulitan: 3,
+      catatan: 'Baca bab normalisasi',
+    );
+
+    await repository.add(task);
+    final restored = (await repository.getAll()).single;
+
+    expect(restored.kesulitan, 3);
+    expect(restored.catatan, 'Baca bab normalisasi');
+  });
+
+  test('hapus semua menghapus data remote dan cache akun', () async {
+    final remote = _FakeRemoteTugasRepository(initial: [_sampleTugas()]);
+    final cache = SharedPreferencesTugasRepository(userId: 'user-1');
+    final repository = CachedTugasRepository(remote: remote, cache: cache);
+    await cache.add(_sampleTugas());
+
+    await repository.deleteAll();
+
+    expect(remote.items, isEmpty);
+    expect(await cache.hasStoredData, isFalse);
+    expect(await cache.getAll(), isEmpty);
+  });
 }
 
 Tugas _sampleTugas() => Tugas(
@@ -183,4 +237,7 @@ class _FakeRemoteTugasRepository implements TugasRepository {
   Future<void> delete(Tugas tugas) async {
     items.removeWhere((item) => item.id == tugas.id);
   }
+
+  @override
+  Future<void> deleteAll() async => items.clear();
 }

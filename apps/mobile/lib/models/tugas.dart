@@ -10,6 +10,8 @@ class Tugas {
     required this.deadline,
     required this.prioritas,
     this.status = StatusTugas.belum,
+    this.kesulitan = 2,
+    this.catatan = '',
   });
 
   String? id;
@@ -18,6 +20,8 @@ class Tugas {
   DateTime deadline;
   int prioritas;
   StatusTugas status;
+  int kesulitan;
+  String catatan;
 
   factory Tugas.fromMap(String id, Map<String, dynamic> map) {
     final nama = map['nama'];
@@ -42,14 +46,23 @@ class Tugas {
       throw const FormatException('Prioritas tugas tidak valid.');
     }
     final rawStatus = map['status'];
-    final matchingStatuses = StatusTugas.values
-        .where((item) => item.name == rawStatus);
+    final matchingStatuses = StatusTugas.values.where(
+      (item) => item.name == rawStatus,
+    );
     if (rawStatus != null && matchingStatuses.isEmpty) {
       throw const FormatException('Status tugas tidak valid.');
     }
     final status = rawStatus == null
         ? StatusTugas.belum
         : matchingStatuses.first;
+    final rawKesulitan = map['kesulitan'] ?? 2;
+    if (rawKesulitan is! int || rawKesulitan < 1 || rawKesulitan > 3) {
+      throw const FormatException('Tingkat kesulitan tugas tidak valid.');
+    }
+    final rawCatatan = map['catatan'] ?? '';
+    if (rawCatatan is! String) {
+      throw const FormatException('Catatan tugas tidak valid.');
+    }
 
     return Tugas(
       id: id,
@@ -58,6 +71,8 @@ class Tugas {
       deadline: deadline,
       prioritas: rawPrioritas,
       status: status,
+      kesulitan: rawKesulitan,
+      catatan: rawCatatan,
     );
   }
 
@@ -68,6 +83,8 @@ class Tugas {
       'deadline': deadline,
       'prioritas': prioritas,
       'status': status.name,
+      'kesulitan': kesulitan,
+      'catatan': catatan,
     };
   }
 }

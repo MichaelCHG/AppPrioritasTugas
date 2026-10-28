@@ -55,11 +55,20 @@ Pengguna dapat melihat deadline setiap tugas sehingga dapat memperkirakan waktu 
 ### 6. Edit dan Hapus Tugas
 Pengguna dapat mengubah informasi tugas atau menghapus tugas yang sudah tidak diperlukan.
 
-## Fitur yang Tidak Dikerjakan
+### 7. Pengingat dan sesi fokus
+- Popup sementara di bagian atas beranda mengingatkan tugas belum selesai yang jatuh tempo dalam satu jam; penghitung tugas aktif ditandai merah.
+- Sesi fokus Pomodoro 25 menit dapat dikaitkan dengan tugas aktif, dijeda, dan diulang.
+- Data tugas disimpan per akun di Firestore dan memiliki cache lokal untuk membantu membaca tugas ketika layanan tidak tersedia.
+
+### 8. Riwayat dan akun pengguna
+- Penyelesaian tugas meminta konfirmasi, lalu memindahkan tugas dari daftar aktif ke riwayat tanpa menghapus datanya secara permanen.
+- Pengguna dapat mendaftar dan masuk dengan username serta password. Username dipetakan ke email internal Firebase, jadi pengguna tidak perlu menyiapkan alamat email saat menggunakan aplikasi.
+- Penghapusan akun tersedia dari menu akun, meminta verifikasi password, lalu menghapus akun Firebase, tugas cloud, dan cache lokal.
+
+## Fitur di Luar MVP
 
 Untuk menjaga agar pengembangan aplikasi tetap sederhana dan dapat diselesaikan dalam waktu yang tersedia, fitur berikut tidak akan dikerjakan:
 
-- Login dan registrasi akun.
 - Sinkronisasi dengan Google Calendar.
 - Sistem chat.
 - Integrasi dengan sistem akademik kampus.
@@ -103,3 +112,6 @@ https://docs.google.com/document/d/1iguGg44L-jRPGOZF1VckO8a3YigKOeDQr58c05ZCc3s/
 
 ## Pengerjaan P6
 https://docs.google.com/document/d/13c2LEjvcovEeVipLdn08Z3k1YRBfzyxg7wsu8pangmQ/edit?usp=sharing
+
+## Pengerjaan P7 (Cek di README mobile untuk detail)
+https://docs.google.com/document/d/1loVD8cEYStUS_y7Fq-UE4O4IeEiTbDEppnMLO_HY4vo/edit?usp=sharing

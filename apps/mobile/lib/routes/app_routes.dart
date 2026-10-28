@@ -29,14 +29,17 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
+          final repository = CachedTugasRepository(
+            remote: FirestoreTugasRepository(),
+            cache: SharedPreferencesTugasRepository(userId: snapshot.data!.uid),
+          );
           return BerandaPage(
-            repository: CachedTugasRepository(
-              remote: FirestoreTugasRepository(),
-              cache: SharedPreferencesTugasRepository(
-                userId: snapshot.data!.uid,
-              ),
-            ),
+            repository: repository,
             authService: authService,
+            onDeleteAccount: (password) => authService.deleteAccount(
+              password: password,
+              deleteUserData: repository.deleteAll,
+            ),
           );
         }
         return AuthPage(authService: authService);

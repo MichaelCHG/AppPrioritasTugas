@@ -24,6 +24,28 @@ class UsernameAuthService {
 
   Future<void> logout() => _auth.signOut();
 
+  Future<void> deleteAccount({
+    required String password,
+    required Future<void> Function() deleteUserData,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw StateError('Tidak ada akun yang sedang masuk.');
+    }
+    final email = user.email;
+    if (email == null || email.isEmpty) {
+      throw StateError('Akun ini tidak mendukung verifikasi password.');
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: email,
+      password: password,
+    );
+    await user.reauthenticateWithCredential(credential);
+    await deleteUserData();
+    await user.delete();
+  }
+
   String _emailFor(String username) {
     final normalized = username.trim().toLowerCase();
     if (!RegExp(r'^[a-z0-9_]{3,24}$').hasMatch(normalized)) {
