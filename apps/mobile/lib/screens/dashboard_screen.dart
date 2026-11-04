@@ -202,7 +202,16 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
                     SliverToBoxAdapter(child: _buildFilter()),
                     if (sedangMemuat)
                       const SliverFillRemaining(
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 12),
+                              Text('Memuat tugas...'),
+                            ],
+                          ),
+                        ),
                       )
                     else if (pesanError != null)
                       SliverFillRemaining(
@@ -282,7 +291,16 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
                     SliverToBoxAdapter(child: _buildHistoryHeader()),
                     if (sedangMemuat)
                       const SliverFillRemaining(
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 12),
+                              Text('Memuat riwayat...'),
+                            ],
+                          ),
+                        ),
                       )
                     else if (pesanError != null)
                       SliverFillRemaining(
@@ -471,30 +489,47 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
   Widget _buildRingkasan() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          _statCard(
-            'Belum selesai',
-            '$jumlahBelumSelesai',
-            Icons.assignment_outlined,
-            const Color(0xffffe3e3),
-            isAlert: true,
-          ),
-          const SizedBox(width: 10),
-          _statCard(
-            'Berjalan',
-            '$jumlahBerjalan',
-            Icons.timelapse_rounded,
-            const Color(0xffffead7),
-          ),
-          const SizedBox(width: 10),
-          _statCard(
-            'Selesai',
-            '$jumlahSelesai',
-            Icons.check_circle_outline,
-            const Color(0xffdff4e9),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 520;
+          final columns = compact ? 2 : 3;
+          final cardWidth =
+              (constraints.maxWidth - (columns - 1) * 10) / columns;
+          return Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              SizedBox(
+                width: cardWidth,
+                child: _statCard(
+                  'Belum selesai',
+                  '$jumlahBelumSelesai',
+                  Icons.assignment_outlined,
+                  const Color(0xffffe3e3),
+                  isAlert: true,
+                ),
+              ),
+              SizedBox(
+                width: cardWidth,
+                child: _statCard(
+                  'Berjalan',
+                  '$jumlahBerjalan',
+                  Icons.timelapse_rounded,
+                  const Color(0xffffead7),
+                ),
+              ),
+              SizedBox(
+                width: cardWidth,
+                child: _statCard(
+                  'Selesai',
+                  '$jumlahSelesai',
+                  Icons.check_circle_outline,
+                  const Color(0xffdff4e9),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -506,62 +541,66 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
     Color color, {
     bool isAlert = false,
   }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: isAlert
-                      ? const Color(0xffc62828)
-                      : const Color(0xff14213d),
-                ),
-                if (isAlert && jumlahBelumSelesai > 0)
-                  Container(
-                    key: const Key('unfinished-task-count'),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffc62828),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '$jumlahBelumSelesai',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+    return Semantics(
+      container: true,
+      label: '$title: $value',
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    icon,
+                    size: 20,
+                    color: isAlert
+                        ? const Color(0xffc62828)
+                        : const Color(0xff14213d),
+                  ),
+                  if (isAlert && jumlahBelumSelesai > 0)
+                    Container(
+                      key: const Key('unfinished-task-count'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffc62828),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$jumlahBelumSelesai',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: isAlert ? Color(0xffc62828) : Color(0xff14213d),
+                ],
               ),
-            ),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, color: Color(0xff687083)),
-            ),
-          ],
+              const SizedBox(height: 10),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: isAlert ? Color(0xffc62828) : Color(0xff14213d),
+                ),
+              ),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 12, color: Color(0xff687083)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -602,128 +641,141 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
         : item.status == StatusTugas.dikerjakan
         ? const Color(0xffd27625)
         : const Color(0xffd34d4d);
+    final actions = Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        _statusBadge(item, warna),
+        PopupMenuButton<String>(
+          tooltip: 'Aksi untuk tugas ${item.nama}',
+          onSelected: (value) async {
+            if (value == 'hapus') _hapusTugas(item);
+            if (value == 'edit') _editTugas(item);
+            if (value.startsWith('status:')) {
+              final status = StatusTugas.values.firstWhere(
+                (candidate) => candidate.name == value.substring(7),
+              );
+              await _ubahStatus(item, status: status);
+            }
+          },
+          itemBuilder: (_) => [
+            const PopupMenuItem(value: 'edit', child: Text('Edit tugas')),
+            ...StatusTugas.values.map(
+              (status) => PopupMenuItem(
+                value: 'status:${status.name}',
+                child: Text('Tandai: ${_statusLabel(status)}'),
+              ),
+            ),
+            const PopupMenuItem(value: 'hapus', child: Text('Hapus tugas')),
+          ],
+        ),
+      ],
+    );
+    final details = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(item.mataKuliah, style: const TextStyle(color: Color(0xff687083))),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: [
+            _detailBadge(
+              'Prioritas ${_labelPrioritas(item.prioritas)}',
+              Icons.flag_outlined,
+            ),
+            _detailBadge(
+              'Kesulitan ${_labelKesulitan(item.kesulitan)}',
+              Icons.bolt_outlined,
+            ),
+          ],
+        ),
+        if (item.catatan.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            item.catatan,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Color(0xff687083), fontSize: 12),
+          ),
+        ],
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Icon(Icons.calendar_today_outlined, size: 14, color: warna),
+            const SizedBox(width: 5),
+            Flexible(
+              child: Text(
+                _formatTanggal(item.deadline),
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: warna,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Checkbox(
-              value: item.status == StatusTugas.selesai,
-              onChanged: (_) => _ubahStatus(item),
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.nama,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      decoration: item.status == StatusTugas.selesai
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item.mataKuliah,
-                    style: const TextStyle(color: Color(0xff687083)),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      _detailBadge(
-                        'Prioritas ${_labelPrioritas(item.prioritas)}',
-                        Icons.flag_outlined,
-                      ),
-                      _detailBadge(
-                        'Kesulitan ${_labelKesulitan(item.kesulitan)}',
-                        Icons.bolt_outlined,
-                      ),
-                    ],
-                  ),
-                  if (item.catatan.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      item.catatan,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xff687083),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: warna,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        _formatTanggal(item.deadline),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: warna,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final title = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _statusBadge(item, warna),
-                PopupMenuButton<String>(
-                  onSelected: (value) async {
-                    if (value == 'hapus') _hapusTugas(item);
-                    if (value == 'edit') _editTugas(item);
-                    if (value.startsWith('status:')) {
-                      final status = StatusTugas.values.firstWhere(
-                        (candidate) => candidate.name == value.substring(7),
-                      );
-                      if (status == StatusTugas.selesai &&
-                          item.status != StatusTugas.selesai) {
-                        await _ubahStatus(item);
-                        return;
-                      }
-                      final saved = await _controller.setStatus(item, status);
-                      if (!saved && mounted) _tampilkanError();
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Text('Edit tugas'),
-                    ),
-                    ...StatusTugas.values.map(
-                      (status) => PopupMenuItem(
-                        value: 'status:${status.name}',
-                        child: Text('Tandai: ${_statusLabel(status)}'),
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'hapus',
-                      child: Text('Hapus tugas'),
-                    ),
-                  ],
+                Text(
+                  item.nama,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    decoration: item.status == StatusTugas.selesai
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
                 ),
               ],
-            ),
-          ],
+            );
+            final titleSection = Expanded(child: title);
+            final checkbox = Checkbox(
+              value: item.status == StatusTugas.selesai,
+              semanticLabel: 'Tandai ${item.nama} selesai',
+              onChanged: (_) => _ubahStatus(item),
+            );
+            if (constraints.maxWidth < 400) {
+              return Column(
+                children: [
+                  Row(children: [checkbox, titleSection, actions]),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 48),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: details,
+                    ),
+                  ),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                checkbox,
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [title, const SizedBox(height: 8), details],
+                  ),
+                ),
+                actions,
+              ],
+            );
+          },
         ),
       ),
     );
@@ -764,9 +816,13 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
         children: [
           Icon(icon, size: 13, color: const Color(0xff687083)),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Color(0xff687083)),
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: const TextStyle(fontSize: 11, color: Color(0xff687083)),
+            ),
           ),
         ],
       ),
@@ -814,23 +870,36 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
   };
 
   Future<void> _tambahTugas() async {
-    await showDialog<void>(
+    final saved = await showDialog<bool>(
       context: context,
       builder: (_) => FormTugasDialog(controller: _controller),
     );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tugas berhasil ditambahkan.')),
+      );
+    }
   }
 
   Future<void> _editTugas(Tugas item) async {
-    await showDialog<void>(
+    final saved = await showDialog<bool>(
       context: context,
       builder: (_) => FormTugasDialog(tugas: item, controller: _controller),
     );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Perubahan tugas berhasil disimpan.')),
+      );
+    }
   }
 
-  Future<void> _ubahStatus(Tugas item) async {
-    final statusBaru = item.status == StatusTugas.selesai
-        ? StatusTugas.belum
-        : StatusTugas.selesai;
+  Future<void> _ubahStatus(Tugas item, {StatusTugas? status}) async {
+    final statusBaru =
+        status ??
+        (item.status == StatusTugas.selesai
+            ? StatusTugas.belum
+            : StatusTugas.selesai);
+    if (statusBaru == item.status) return;
     if (statusBaru == StatusTugas.selesai) {
       final yakin = await showDialog<bool>(
         context: context,
@@ -854,7 +923,17 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
       if (yakin != true || !mounted) return;
     }
     final tersimpan = await _controller.setStatus(item, statusBaru);
-    if (!tersimpan && mounted) _tampilkanError();
+    if (!mounted) return;
+    if (!tersimpan) {
+      _tampilkanError();
+      return;
+    }
+    final pesan = switch (statusBaru) {
+      StatusTugas.belum => 'Status tugas: belum dikerjakan.',
+      StatusTugas.dikerjakan => 'Status tugas: sedang dikerjakan.',
+      StatusTugas.selesai => 'Tugas berhasil diselesaikan.',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(pesan)));
   }
 
   Future<void> _hapusTugas(Tugas item) async {

@@ -89,6 +89,61 @@ void main() {
     expect(find.byKey(const Key('unfinished-task-count')), findsOneWidget);
   });
 
+  testWidgets('layout adaptif tidak overflow di layar kecil dan besar', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await _render(tester, _TestTugasRepository(initial: [_sampleTask()]));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    tester.view.physicalSize = const Size(1366, 900);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Membuat rancangan aplikasi'), findsOneWidget);
+  });
+
+  testWidgets('form tetap dapat digulir saat keyboard aktif', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+
+    await _render(tester, _TestTugasRepository());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tambah tugas'));
+    await tester.pumpAndSettle();
+    final nameField = find.byType(TextFormField).first;
+    await tester.tap(nameField);
+    tester.view.viewInsets = const FakeViewPadding(bottom: 320);
+    await tester.pumpAndSettle();
+
+    expect(tester.getRect(nameField).bottom, lessThanOrEqualTo(460));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('kontrol utama memiliki label aksesibilitas', (
+    WidgetTester tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _render(tester, _TestTugasRepository(initial: [_sampleTask()]));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Checkbox>(find.byType(Checkbox).first).semanticLabel,
+      'Tandai Membuat rancangan aplikasi selesai',
+    );
+    expect(find.bySemanticsLabel('Belum selesai: 1'), findsOneWidget);
+    semantics.dispose();
+  });
+
   testWidgets('navigasi membuka dan mengontrol sesi fokus', (
     WidgetTester tester,
   ) async {
@@ -202,6 +257,7 @@ void main() {
 
     expect(repository.items.single.catatan, 'Sertakan referensi jurnal');
     expect(repository.items.single.kesulitan, 2);
+    expect(find.text('Tugas berhasil ditambahkan.'), findsOneWidget);
   });
 
   testWidgets('membatalkan penyelesaian menjaga tugas di daftar aktif', (

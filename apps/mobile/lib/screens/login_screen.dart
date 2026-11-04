@@ -135,11 +135,15 @@ class _AuthPageState extends State<AuthPage> {
                       TextField(
                         controller: passwordController,
                         obscureText: obscurePassword,
+                        textInputAction: TextInputAction.done,
                         onSubmitted: (_) => submit(),
                         decoration: InputDecoration(
                           labelText: 'Password',
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
+                            tooltip: obscurePassword
+                                ? 'Tampilkan password'
+                                : 'Sembunyikan password',
                             onPressed: () => setState(
                               () => obscurePassword = !obscurePassword,
                             ),
@@ -162,12 +166,19 @@ class _AuthPageState extends State<AuthPage> {
                       FilledButton(
                         onPressed: isLoading ? null : submit,
                         child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
+                            ? const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text('Memproses...'),
+                                ],
                               )
                             : Text(isLogin ? 'Masuk' : 'Daftar'),
                       ),

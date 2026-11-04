@@ -53,6 +53,28 @@ Jika login gagal dengan pesan provider belum aktif, aktifkan Email/Password di
 Firebase Console > Authentication > Sign-in method. Data akun dan tugas demo
 akan tersimpan pada proyek Firebase yang dikonfigurasi untuk aplikasi.
 
+## Review UI adaptif, keyboard, aksesibilitas, dan feedback
+
+Jalankan aplikasi terlebih dahulu dari folder `apps/mobile` dengan `flutter run`
+(atau tekan **F5** di VS Code setelah memilih emulator/perangkat). Ambil empat
+screenshot saat aplikasi sedang berjalan:
+
+1. **Layar kecil:** beranda di emulator ponsel, tampilkan ringkasan dan kartu
+   tugas.
+2. **Layar besar:** beranda di tablet/desktop atau browser dengan jendela lebar,
+   tampilkan keseluruhan ringkasan dan daftar tugas.
+3. **Keyboard aktif:** buka **Tambah tugas**, fokuskan kolom catatan atau nama,
+   lalu ambil screenshot dengan keyboard terbuka dan kolom yang sedang diedit
+   tetap terlihat. Geser isi form bila perlu.
+4. **Feedback aksi:** simpan tugas dan ambil screenshot segera setelah pesan
+   **“Tugas berhasil ditambahkan.”** muncul.
+
+Screenshot diambil dari emulator/perangkat (misalnya tombol screenshot emulator
+atau Snipping Tool), bukan dari hasil test. Untuk pemeriksaan aksesibilitas,
+coba navigasi dengan TalkBack/VoiceOver dan pastikan label tombol, checkbox,
+status tugas, serta tab dapat dibacakan. Ukuran layar dan keyboard emulator
+dapat diubah untuk menguji tampilan adaptif dan form.
+
 ## Implementasi lanjutan
 
 - **Autentikasi:** Firebase Authentication memakai username yang dipetakan ke

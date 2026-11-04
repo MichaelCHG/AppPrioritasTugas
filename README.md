@@ -115,3 +115,6 @@ https://docs.google.com/document/d/13c2LEjvcovEeVipLdn08Z3k1YRBfzyxg7wsu8pangmQ/
 
 ## Pengerjaan P7 (Cek di README mobile untuk detail)
 https://docs.google.com/document/d/1loVD8cEYStUS_y7Fq-UE4O4IeEiTbDEppnMLO_HY4vo/edit?usp=sharing
+
+## Pengerjaan P8 (Menggunakan Android Virtual dikarenakan handphone tidak bisa dikonekan ke desktop)
+https://docs.google.com/document/d/1GVQpmsvLXElpLO5B5qLIqGSRqoXamZ9iSIvMkPNoViI/edit?usp=sharing

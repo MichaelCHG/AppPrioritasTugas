@@ -50,119 +50,117 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) => AlertDialog(
+        scrollable: true,
         title: Text(widget.tugas == null ? 'Tambah tugas' : 'Edit tugas'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: namaController,
-                      maxLength: 80,
-                      decoration: const InputDecoration(
-                        labelText: 'Nama tugas *',
-                      ),
-                      validator: (value) {
-                        final nama = value?.trim() ?? '';
-                        if (nama.isEmpty) return 'Nama tugas wajib diisi';
-                        if (nama.length < 3) return 'Minimal 3 karakter';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: mataKuliahController,
-                      maxLength: 60,
-                      decoration: const InputDecoration(
-                        labelText: 'Mata kuliah',
-                      ),
-                      validator: (value) => (value?.length ?? 0) > 60
-                          ? 'Maksimal 60 karakter'
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pilihTanggal,
-                      icon: const Icon(Icons.calendar_month),
-                      label: Text(
-                        '${deadline.day}/${deadline.month}/${deadline.year}',
-                      ),
+                  TextFormField(
+                    controller: namaController,
+                    maxLength: 80,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama tugas *',
+                    ),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      final nama = value?.trim() ?? '';
+                      if (nama.isEmpty) return 'Nama tugas wajib diisi';
+                      if (nama.length < 3) return 'Minimal 3 karakter';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: mataKuliahController,
+                    maxLength: 60,
+                    decoration: const InputDecoration(labelText: 'Mata kuliah'),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) => (value?.length ?? 0) > 60
+                        ? 'Maksimal 60 karakter'
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pilihTanggal,
+                    icon: const Icon(Icons.calendar_month),
+                    label: Text(
+                      '${deadline.day}/${deadline.month}/${deadline.year}',
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pilihJam,
-                      icon: const Icon(Icons.schedule),
-                      label: Text(
-                        '${deadline.hour.toString().padLeft(2, '0')}:${deadline.minute.toString().padLeft(2, '0')}',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<int>(
-                initialValue: prioritas,
-                decoration: const InputDecoration(labelText: 'Prioritas'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Rendah')),
-                  DropdownMenuItem(value: 2, child: Text('Sedang')),
-                  DropdownMenuItem(value: 3, child: Text('Tinggi')),
-                ],
-                onChanged: (value) => setState(() => prioritas = value ?? 2),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<int>(
-                initialValue: kesulitan,
-                decoration: const InputDecoration(labelText: 'Kesulitan'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Mudah')),
-                  DropdownMenuItem(value: 2, child: Text('Sedang')),
-                  DropdownMenuItem(value: 3, child: Text('Sulit')),
-                ],
-                onChanged: (value) => setState(() => kesulitan = value ?? 2),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: catatanController,
-                maxLength: 300,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Catatan (opsional)',
-                  alignLabelWithHint: true,
                 ),
-              ),
-              if (deadlineError != null) ...[
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    deadlineError!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pilihJam,
+                    icon: const Icon(Icons.schedule),
+                    label: Text(
+                      '${deadline.hour.toString().padLeft(2, '0')}:${deadline.minute.toString().padLeft(2, '0')}',
                     ),
                   ),
                 ),
               ],
-              if (widget.controller.submitError case final error?) ...[
-                const SizedBox(height: 12),
-                Text(
-                  error,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<int>(
+              initialValue: prioritas,
+              decoration: const InputDecoration(labelText: 'Prioritas'),
+              items: const [
+                DropdownMenuItem(value: 1, child: Text('Rendah')),
+                DropdownMenuItem(value: 2, child: Text('Sedang')),
+                DropdownMenuItem(value: 3, child: Text('Tinggi')),
+              ],
+              onChanged: (value) => setState(() => prioritas = value ?? 2),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<int>(
+              initialValue: kesulitan,
+              decoration: const InputDecoration(labelText: 'Kesulitan'),
+              items: const [
+                DropdownMenuItem(value: 1, child: Text('Mudah')),
+                DropdownMenuItem(value: 2, child: Text('Sedang')),
+                DropdownMenuItem(value: 3, child: Text('Sulit')),
+              ],
+              onChanged: (value) => setState(() => kesulitan = value ?? 2),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: catatanController,
+              maxLength: 300,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Catatan (opsional)',
+                alignLabelWithHint: true,
+              ),
+              textInputAction: TextInputAction.done,
+            ),
+            if (deadlineError != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  deadlineError!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-              ],
+              ),
             ],
-          ),
+            if (widget.controller.submitError case final error?) ...[
+              const SizedBox(height: 12),
+              Text(
+                error,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+          ],
         ),
         actions: [
           TextButton(
@@ -172,11 +170,18 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
           FilledButton(
             onPressed: widget.controller.isSubmitting ? null : _simpan,
             child: widget.controller.isSubmitting
-                ? const SizedBox(
-                    key: Key('submit-progress'),
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                ? const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        key: Key('submit-progress'),
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 8),
+                      Text('Menyimpan...'),
+                    ],
                   )
                 : const Text('Simpan'),
           ),
@@ -249,6 +254,6 @@ class _FormTugasDialogState extends State<FormTugasDialog> {
       ),
       existing: widget.tugas,
     );
-    if (berhasil && mounted) Navigator.pop(context);
+    if (berhasil && mounted) Navigator.pop(context, true);
   }
 }
