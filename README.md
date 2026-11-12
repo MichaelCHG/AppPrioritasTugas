@@ -118,3 +118,6 @@ https://docs.google.com/document/d/1loVD8cEYStUS_y7Fq-UE4O4IeEiTbDEppnMLO_HY4vo/
 
 ## Pengerjaan P8 (Menggunakan Android Virtual dikarenakan handphone tidak bisa dikonekan ke desktop)
 https://docs.google.com/document/d/1GVQpmsvLXElpLO5B5qLIqGSRqoXamZ9iSIvMkPNoViI/edit?usp=sharing
+
+## Pengerjaan P9 
+https://docs.google.com/document/d/1UxRTnt5EBwzr1ppFTJOcy-tWpIYphYTb8eVJQK1laGM/edit?tab=t.0
