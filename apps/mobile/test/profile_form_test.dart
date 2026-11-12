@@ -136,8 +136,48 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('profile-display-name')), findsOneWidget);
-    expect(profileRepository.loadCalls, 1);
+    expect(profileRepository.loadCalls, 2);
   });
+
+  testWidgets(
+    'header menampilkan profil dan langsung diperbarui saat disimpan',
+    (WidgetTester tester) async {
+      final profileRepository = _FakeProfileRepository(
+        profile: const UserProfile(displayName: 'Alya', major: 'Informatika'),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BerandaPage(
+            repository: MemoryTugasRepository(),
+            profileRepository: profileRepository,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Alya'), findsOneWidget);
+      expect(find.text('Informatika'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Menu akun'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Profil'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('profile-display-name')),
+        'Alya Putri',
+      );
+      await tester.enterText(
+        find.byKey(const Key('profile-major')),
+        'Sistem Informasi',
+      );
+      await tester.tap(find.text('Simpan profil'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Alya Putri'), findsOneWidget);
+      expect(find.text('Sistem Informasi'), findsOneWidget);
+      expect(find.text('Prioritas Tugas'), findsNothing);
+    },
+  );
 }
 
 Future<void> _openProfileForm(
@@ -188,7 +228,7 @@ class _FakeProfileRepository implements ProfileRepository {
       loadFailures--;
       throw StateError('simulated read failure');
     }
-    return profile;
+    return savedProfile ?? profile;
   }
 
   @override

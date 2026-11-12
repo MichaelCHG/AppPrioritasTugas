@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../data/tugas_repository.dart';
 import '../data/profile_repository.dart';
 import '../models/tugas.dart';
+import '../models/user_profile.dart';
 import 'focus_session_screen.dart';
 import '../services/auth_service.dart';
 import '../state/tugas_controller.dart';
@@ -38,6 +39,7 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
   OverlayEntry? _deadlinePopup;
   Timer? _deadlinePopupTimer;
   Timer? _deadlineCheckTimer;
+  UserProfile? _userProfile;
 
   List<Tugas> get tugas => _controller.tugas;
   bool get sedangMemuat => _controller.isLoading;
@@ -50,6 +52,7 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _controller = TugasController(widget.repository);
     _controller.addListener(_checkDeadlineNotifications);
+    if (widget.profileRepository != null) _loadHeaderProfile();
     _deadlineCheckTimer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _checkDeadlineNotifications(),
@@ -172,9 +175,20 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
       builder: (_) => ProfileForm(repository: repository),
     );
     if (saved == true && mounted) {
+      await _loadHeaderProfile();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil berhasil disimpan.')),
       );
+    }
+  }
+
+  Future<void> _loadHeaderProfile() async {
+    try {
+      final profile = await widget.profileRepository!.getProfile();
+      if (mounted) setState(() => _userProfile = profile);
+    } catch (error) {
+      debugPrint('Gagal memuat profil pada beranda: $error');
     }
   }
 
@@ -430,6 +444,9 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
   }
 
   Widget _buildHeader() {
+    final displayName = _userProfile?.displayName.trim() ?? '';
+    final major = _userProfile?.major.trim() ?? '';
+    final hasProfile = displayName.isNotEmpty || major.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
       child: Row(
@@ -447,26 +464,57 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Prioritas Tugas',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xff14213d),
+          if (!hasProfile)
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Prioritas Tugas',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xff14213d),
+                    ),
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Atur langkahmu, selesaikan tepat waktu',
-                  style: TextStyle(color: Color(0xff687083)),
-                ),
-              ],
+                  SizedBox(height: 4),
+                  Text(
+                    'Atur langkahmu, selesaikan tepat waktu',
+                    style: TextStyle(color: Color(0xff687083)),
+                  ),
+                ],
+              ),
+            )
+          else
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName.isNotEmpty ? displayName : 'Prioritas Tugas',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xff14213d),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    major.isNotEmpty
+                        ? major
+                        : 'Atur langkahmu, selesaikan tepat waktu',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xff687083),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           if (widget.profileRepository != null ||
               widget.authService != null ||
               widget.onDeleteAccount != null)

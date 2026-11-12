@@ -49,9 +49,10 @@ kesulitan, catatan, dan status pengerjaan.
    terbaru; jika password salah, akun tetap ada. Jika berhasil, dokumen tugas
    cloud, profil, cache lokal, dan akun Firebase dihapus permanen.
 9. Buka menu **⋮ > Profil**, isi **Nama tampilan** dan **Jurusan**, lalu pilih
-   **Simpan profil**. Profil yang sudah tersimpan akan muncul lagi saat form
-   dibuka kembali. Jika Firestore gagal dibaca atau ditulis, form menampilkan
-   pesan dan mempertahankan input agar pengguna dapat mencoba lagi.
+   **Simpan profil**. Nama dan jurusan akan muncul di kiri atas beranda dengan
+   ukuran teks yang menyesuaikan ruang, lalu tetap tersimpan saat form dibuka
+   kembali. Jika Firestore gagal dibaca atau ditulis, form menampilkan pesan
+   dan mempertahankan input agar pengguna dapat mencoba lagi.
 
 Jika login gagal dengan pesan provider belum aktif, aktifkan Email/Password di
 Firebase Console > Authentication > Sign-in method. Data akun dan tugas demo
@@ -81,7 +82,7 @@ Untuk dokumentasi fitur profil, tambahkan screenshot berikut:
 3. **Validasi profil:** kosongkan salah satu field lalu tekan **Simpan profil**
    agar pesan validasi terlihat.
 4. **Profil tersimpan:** simpan perubahan, lalu buka kembali form untuk
-   menunjukkan nilai tetap tersimpan.
+   menunjukkan nilai tetap tersimpan dan terlihat pada kiri atas beranda.
 
 Jika mengabadikan kondisi error koneksi, gunakan screenshot terpisah yang
 memperlihatkan pesan gagal dan tombol **Coba lagi**; jangan tampilkan kredensial
