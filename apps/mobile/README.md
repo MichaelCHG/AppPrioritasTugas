@@ -47,7 +47,11 @@ kesulitan, catatan, dan status pengerjaan.
 8. Untuk menguji penghapusan akun, buka menu **⋮ > Hapus akun**, baca peringatan,
    masukkan password akun, lalu konfirmasi. Firebase meminta verifikasi password
    terbaru; jika password salah, akun tetap ada. Jika berhasil, dokumen tugas
-   cloud, cache lokal, dan akun Firebase dihapus permanen.
+   cloud, profil, cache lokal, dan akun Firebase dihapus permanen.
+9. Buka menu **⋮ > Profil**, isi **Nama tampilan** dan **Jurusan**, lalu pilih
+   **Simpan profil**. Profil yang sudah tersimpan akan muncul lagi saat form
+   dibuka kembali. Jika Firestore gagal dibaca atau ditulis, form menampilkan
+   pesan dan mempertahankan input agar pengguna dapat mencoba lagi.
 
 Jika login gagal dengan pesan provider belum aktif, aktifkan Email/Password di
 Firebase Console > Authentication > Sign-in method. Data akun dan tugas demo
@@ -69,6 +73,20 @@ screenshot saat aplikasi sedang berjalan:
 4. **Feedback aksi:** simpan tugas dan ambil screenshot segera setelah pesan
    **“Tugas berhasil ditambahkan.”** muncul.
 
+Untuk dokumentasi fitur profil, tambahkan screenshot berikut:
+
+1. **Menu profil:** menu akun terbuka dengan pilihan **Profil**.
+2. **Form profil:** tampilkan nama tampilan dan jurusan yang sudah terisi
+   (gunakan data contoh, bukan data pribadi).
+3. **Validasi profil:** kosongkan salah satu field lalu tekan **Simpan profil**
+   agar pesan validasi terlihat.
+4. **Profil tersimpan:** simpan perubahan, lalu buka kembali form untuk
+   menunjukkan nilai tetap tersimpan.
+
+Jika mengabadikan kondisi error koneksi, gunakan screenshot terpisah yang
+memperlihatkan pesan gagal dan tombol **Coba lagi**; jangan tampilkan kredensial
+atau data pribadi.
+
 Screenshot diambil dari emulator/perangkat (misalnya tombol screenshot emulator
 atau Snipping Tool), bukan dari hasil test. Untuk pemeriksaan aksesibilitas,
 coba navigasi dengan TalkBack/VoiceOver dan pastikan label tombol, checkbox,
@@ -86,6 +104,10 @@ dapat diubah untuk menguji tampilan adaptif dan form.
 - **Penyimpanan:** Firestore menyimpan data per pengguna di
   `users/{uid}/tasks`; SharedPreferences menjadi cache baca per akun saat
   Firestore tidak tersedia.
+- **Profil:** `namaTampilan` dan `jurusan` disimpan pada dokumen Firestore
+  `users/{uid}`. Akses dokumen hanya diizinkan untuk pengguna yang UID-nya
+  cocok, dan profil dihapus saat akun dihapus. Aturan ini memerlukan deployment
+  `firestore.rules` ke Firebase Console.
 - **Hapus akun:** meminta password untuk autentikasi ulang, menghapus tugas
   Firestore dan cache pengguna, kemudian menghapus akun Firebase. Karena
   penghapusan data cloud dan akun bukan satu transaksi, gangguan koneksi di

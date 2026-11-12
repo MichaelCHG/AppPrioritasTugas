@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/profile_repository.dart';
 import '../data/tugas_repository.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/login_screen.dart';
@@ -33,12 +34,17 @@ class AuthGate extends StatelessWidget {
             remote: FirestoreTugasRepository(),
             cache: SharedPreferencesTugasRepository(userId: snapshot.data!.uid),
           );
+          final profileRepository = FirestoreProfileRepository();
           return BerandaPage(
             repository: repository,
+            profileRepository: profileRepository,
             authService: authService,
             onDeleteAccount: (password) => authService.deleteAccount(
               password: password,
-              deleteUserData: repository.deleteAll,
+              deleteUserData: () async {
+                await repository.deleteAll();
+                await profileRepository.deleteProfile();
+              },
             ),
           );
         }

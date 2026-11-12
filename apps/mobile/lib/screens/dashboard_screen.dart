@@ -4,21 +4,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../data/tugas_repository.dart';
+import '../data/profile_repository.dart';
 import '../models/tugas.dart';
 import 'focus_session_screen.dart';
 import '../services/auth_service.dart';
 import '../state/tugas_controller.dart';
+import '../widgets/profile_form.dart';
 import '../widgets/task_form_dialog.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({
     super.key,
     required this.repository,
+    this.profileRepository,
     this.authService,
     this.onDeleteAccount,
   });
 
   final TugasRepository repository;
+  final ProfileRepository? profileRepository;
   final UsernameAuthService? authService;
   final Future<void> Function(String password)? onDeleteAccount;
 
@@ -158,6 +162,20 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
     _deadlinePopup?.remove();
     _deadlinePopup?.dispose();
     _deadlinePopup = null;
+  }
+
+  Future<void> _editProfile() async {
+    final repository = widget.profileRepository;
+    if (repository == null) return;
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => ProfileForm(repository: repository),
+    );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profil berhasil disimpan.')),
+      );
+    }
   }
 
   List<Tugas> get tugasTampil {
@@ -449,14 +467,26 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
               ],
             ),
           ),
-          if (widget.authService != null || widget.onDeleteAccount != null)
+          if (widget.profileRepository != null ||
+              widget.authService != null ||
+              widget.onDeleteAccount != null)
             PopupMenuButton<String>(
               tooltip: 'Menu akun',
               onSelected: (value) {
+                if (value == 'profile') _editProfile();
                 if (value == 'logout') widget.authService?.logout();
                 if (value == 'delete-account') _confirmDeleteAccount();
               },
               itemBuilder: (_) => [
+                if (widget.profileRepository != null)
+                  const PopupMenuItem(
+                    value: 'profile',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.person_outline),
+                      title: Text('Profil'),
+                    ),
+                  ),
                 if (widget.authService != null)
                   const PopupMenuItem(
                     value: 'logout',
