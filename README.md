@@ -121,3 +121,6 @@ https://docs.google.com/document/d/1GVQpmsvLXElpLO5B5qLIqGSRqoXamZ9iSIvMkPNoViI/
 
 ## Pengerjaan P9 
 https://docs.google.com/document/d/1UxRTnt5EBwzr1ppFTJOcy-tWpIYphYTb8eVJQK1laGM/edit?tab=t.0
+
+## Pengerjaan P10
+https://docs.google.com/document/d/1yKKolQmPWeZ20GEaT9xZOk8jxSg6qcg88H3V2GVDYdg/edit?usp=sharing
