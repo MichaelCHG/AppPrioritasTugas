@@ -117,3 +117,30 @@ dapat diubah untuk menguji tampilan adaptif dan form.
 
 Firestore diakses melalui Firebase SDK, bukan REST API terpisah. Jalankan
 verifikasi dari folder ini dengan `flutter test` dan `flutter analyze`.
+
+## Log runtime Android
+
+Error Flutter yang tidak tertangani, kegagalan inisialisasi Firebase, dan
+kegagalan operasi aplikasi dicatat dengan kategori `prioritas_tugas` beserta
+stack trace. Log tidak mencatat password atau isi tugas. Saat perangkat Android
+terhubung melalui ADB, jalankan `flutter logs` dari folder ini untuk melihat log
+runtime.
+
+## APK untuk instalasi langsung
+
+APK yang disiapkan untuk ponsel Android ARM64 dibuat dengan:
+
+```powershell
+flutter build apk --debug --split-per-abi --target-platform android-arm64
+```
+
+Hasilnya ada di `build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk`. APK
+debug dapat di-sideload untuk uji coba, tetapi belum dioptimalkan dan tetap
+memungkinkan debugging. Pastikan perangkat mendukung ABI `arm64-v8a`.
+
+Untuk APK release yang lebih kecil dan teroptimasi, jalankan
+`flutter build apk --release --target-platform android-arm64` dari lingkungan
+build yang diizinkan. Build release pada mesin ini terhenti karena Windows
+Application Control memblokir `gen_snapshot.exe`; file release belum
+dihasilkan. Konfigurasi Gradle saat ini menggunakan debug signing key, jadi
+siapkan signing key release tersendiri untuk pembaruan aplikasi yang konsisten.

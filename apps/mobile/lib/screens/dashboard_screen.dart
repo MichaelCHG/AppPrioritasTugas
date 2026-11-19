@@ -7,6 +7,7 @@ import '../data/tugas_repository.dart';
 import '../data/profile_repository.dart';
 import '../models/tugas.dart';
 import '../models/user_profile.dart';
+import '../services/app_log.dart';
 import 'focus_session_screen.dart';
 import '../services/auth_service.dart';
 import '../state/tugas_controller.dart';
@@ -187,8 +188,8 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
     try {
       final profile = await widget.profileRepository!.getProfile();
       if (mounted) setState(() => _userProfile = profile);
-    } catch (error) {
-      debugPrint('Gagal memuat profil pada beranda: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to load dashboard profile', error, stackTrace);
     }
   }
 
@@ -1125,7 +1126,8 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
       await deleteAccount(password);
       if (navigator.canPop()) navigator.pop();
       if (mounted) setState(() => _isDeletingAccount = false);
-    } on FirebaseAuthException catch (error) {
+    } on FirebaseAuthException catch (error, stackTrace) {
+      logAppError('Failed to delete account', error, stackTrace);
       if (!mounted) return;
       if (navigator.canPop()) navigator.pop();
       setState(() => _isDeletingAccount = false);
@@ -1139,11 +1141,11 @@ class _BerandaPageState extends State<BerandaPage> with WidgetsBindingObserver {
           'Penghapusan akun gagal (${error.code}); sebagian data mungkin sudah terhapus.',
       };
       _showAccountDeletionError(message);
-    } catch (error) {
+    } catch (error, stackTrace) {
       if (!mounted) return;
       if (navigator.canPop()) navigator.pop();
       setState(() => _isDeletingAccount = false);
-      debugPrint('Gagal menghapus akun: $error');
+      logAppError('Failed to delete account', error, stackTrace);
       _showAccountDeletionError(
         'Penghapusan tidak selesai. Sebagian tugas mungkin sudah terhapus, tetapi akun mungkin masih aktif. Detail: $error',
       );

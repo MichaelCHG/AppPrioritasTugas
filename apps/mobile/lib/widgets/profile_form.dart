@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/profile_repository.dart';
 import '../models/user_profile.dart';
+import '../services/app_log.dart';
 import '../validation/profile_validation.dart';
 
 class ProfileForm extends StatefulWidget {
@@ -47,8 +48,8 @@ class _ProfileFormState extends State<ProfileForm> {
       _displayNameController.text = profile.displayName;
       _majorController.text = profile.major;
       setState(() => _isLoading = false);
-    } catch (error) {
-      debugPrint('Gagal memuat profil: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to load profile', error, stackTrace);
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -72,8 +73,8 @@ class _ProfileFormState extends State<ProfileForm> {
         ),
       );
       if (mounted) Navigator.pop(context, true);
-    } catch (error) {
-      debugPrint('Gagal menyimpan profil: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to save profile', error, stackTrace);
       if (!mounted) return;
       setState(() {
         _isSaving = false;

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/tugas_repository.dart';
 import '../models/tugas.dart';
+import '../services/app_log.dart';
 
 class TugasController extends ChangeNotifier {
   TugasController(this._repository);
@@ -30,8 +31,8 @@ class TugasController extends ChangeNotifier {
       _tugas
         ..clear()
         ..addAll(hasil);
-    } catch (error) {
-      debugPrint('Gagal memuat tugas: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to load tasks', error, stackTrace);
       _error = 'Data belum dapat dimuat dari Firebase.';
     } finally {
       _isLoading = false;
@@ -54,8 +55,8 @@ class TugasController extends ChangeNotifier {
         if (index >= 0) _tugas[index] = tugas;
       }
       return true;
-    } catch (error) {
-      debugPrint('Gagal menyimpan tugas: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to save task', error, stackTrace);
       _submitError = 'Gagal menyimpan tugas. Silakan coba lagi.';
       return false;
     } finally {
@@ -80,8 +81,8 @@ class TugasController extends ChangeNotifier {
     try {
       await _repository.update(tugas);
       return true;
-    } catch (error) {
-      debugPrint('Gagal memperbarui status tugas: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to update task status', error, stackTrace);
       tugas.status = statusLama;
       notifyListeners();
       return false;
@@ -94,8 +95,8 @@ class TugasController extends ChangeNotifier {
       _tugas.remove(tugas);
       notifyListeners();
       return true;
-    } catch (error) {
-      debugPrint('Gagal menghapus tugas: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to delete task', error, stackTrace);
       return false;
     }
   }

@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/tugas.dart';
+import '../services/app_log.dart';
 
 abstract interface class TugasRepository {
   Future<List<Tugas>> getAll();
@@ -164,8 +164,12 @@ class CachedTugasRepository implements TugasRepository {
     } catch (error, stackTrace) {
       try {
         if (await cache.hasStoredData) return await cache.getAll();
-      } catch (cacheError) {
-        debugPrint('Gagal membaca cache tugas: $cacheError');
+      } catch (cacheError, cacheStackTrace) {
+        logAppError(
+          'Failed to read local task cache during remote fallback',
+          cacheError,
+          cacheStackTrace,
+        );
       }
       Error.throwWithStackTrace(error, stackTrace);
     }
@@ -199,8 +203,8 @@ class CachedTugasRepository implements TugasRepository {
   Future<void> _updateCache(Future<void> Function() update) async {
     try {
       await update();
-    } catch (error) {
-      debugPrint('Gagal memperbarui cache tugas: $error');
+    } catch (error, stackTrace) {
+      logAppError('Failed to update local task cache', error, stackTrace);
     }
   }
 }

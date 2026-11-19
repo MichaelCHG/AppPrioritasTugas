@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
+import '../services/app_log.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key, required this.authService});
@@ -53,8 +54,10 @@ class _AuthPageState extends State<AuthPage> {
     } on FormatException catch (error) {
       _showError(error.message);
     } on FirebaseAuthException catch (error) {
+      logAppWarning('Authentication request failed (code: ${error.code}).');
       _showError(_messageFor(error.code));
-    } catch (_) {
+    } catch (error, stackTrace) {
+      logAppError('Unexpected authentication failure', error, stackTrace);
       _showError('Tidak dapat terhubung ke Firebase. Coba lagi.');
     }
     if (mounted) setState(() => isLoading = false);
