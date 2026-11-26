@@ -125,7 +125,9 @@ https://docs.google.com/document/d/1UxRTnt5EBwzr1ppFTJOcy-tWpIYphYTb8eVJQK1laGM/
 ## Pengerjaan P10
 https://docs.google.com/document/d/1yKKolQmPWeZ20GEaT9xZOk8jxSg6qcg88H3V2GVDYdg/edit?usp=sharing
 
-## Pengerjaan P11
+## Pengerjaan P11(docs dibawah opsional, pengerjaan asli lihat Branch dan alur release)
+https://docs.google.com/document/d/1TOZFMlBYdn3vdJz0vDfhDS2UBwAYhHIETB3yKCxr0zI/edit?usp=sharing
+
 
 ### Branch dan alur release
 
