@@ -124,3 +124,47 @@ https://docs.google.com/document/d/1UxRTnt5EBwzr1ppFTJOcy-tWpIYphYTb8eVJQK1laGM/
 
 ## Pengerjaan P10
 https://docs.google.com/document/d/1yKKolQmPWeZ20GEaT9xZOk8jxSg6qcg88H3V2GVDYdg/edit?usp=sharing
+
+## Pengerjaan P11
+
+### Branch dan alur release
+
+- `v1.0`: release yang sudah dinyatakan OK.
+- `v1.0_dev`: branch pengembangan untuk memperbaiki bug tertentu dan menjalankan unit test.
+- `v1.1`: branch target untuk hasil P11 yang telah lulus pengujian.
+
+Pipeline di
+[.github/workflows/flutter-ci.yml](apps/mobile/.github/workflows/flutter-ci.yml)
+menjalankan `flutter analyze` dan `flutter test` untuk push serta pull request ke
+branch `v1.0_dev`, `v1.1`, dan `main`. Pipeline harus berstatus hijau sebelum
+build/deploy dapat dilakukan.
+
+### Simulasi unit test gagal
+
+Untuk membuktikan bahwa pipeline membentuk quality gate:
+
+1. Tambahkan sementara satu test yang sengaja salah pada branch `v1.0_dev`,
+   misalnya mengharapkan `2 + 2 == 5`.
+2. Jalankan `flutter test`.
+3. Ambil screenshot terminal yang memperlihatkan nama test, assertion, dan status
+   `Some tests failed`.
+4. Pastikan GitHub Actions berwarna merah dan tidak menjalankan tahap deploy.
+5. Perbaiki test/bug, kembalikan ekspetasi ke benar, lalu jalankan
+   `flutter test` lagi.
+6. Ambil screenshot `All tests passed!` dan pipeline hijau.
+
+Contoh kegagalan uji yang disengaja sementara:
+
+```dart
+test('simulasi kegagalan P11', () {
+  expect(2 + 2, 5);
+});
+```
+
+Dampak kegagalan unit test:
+
+- Build/deploy tidak boleh melanjutkan ke live.
+- Pull request atau branch tidak boleh dianggap siap untuk testing tahap dua.
+- Kegagalan commit terlihat pada log CI dan perlu ditindaklanjuti.
+- Hanya perbaikan yang membuat seluruh unit test lulus yang boleh diteruskan ke
+  `v1.1` dan deployment.
